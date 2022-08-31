@@ -1,36 +1,24 @@
 library(sqldf)
+library(ggplot2)
 
 
 valle_data <- sqldf("SELECT * FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'")
 View(valle_data)
 
-sqldf("SELECT [Móvil Agresor] FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)' AND [Móvil Agresor] = 'A PIE'")
 
-test <- sqldf("SELECT sexo|| ' - ' ||[Móvil Victima] AS CONCA FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'")
+# Movil Victima con mayores homicidios haciendo distincion de genero
+
+test <- sqldf("SELECT [Móvil Victima], sexo,  count(sexo) AS CONCA FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)' group by sexo, [Móvil Victima]")
 View(test)
 
-test1 <- sqldf("SELECT [País de Nacimiento] AS CONCA FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'")
-View(test1)
-
-windows()
-x <- table(valle_data$`Móvil Victima`)
-y <- table(valle_data$`Móvil Victima`)
-z <- table(valle_data$`Barrio`)
-k <- table(test$`CONCA`)
-g
+ggplot(test, aes(x = `Móvil Victima`, y=CONCA, fill =Sexo))+geom_col(position='dodge')
 
 
 
-barplot(x, xlab = 'Movil Agresor', ylab = 'Frequency', main='Transporte principal', col = '#fe04a2')  
+#Top 5 Barrios con mas homicidios de la ciudad de CALI
 
-barplot(z, xlab = 'Movil Agresor', ylab = 'Frequency', main='Transporte principal', col = '#fe04a2',  horiz = TRUE)  
+test2 <- sqldf("SELECT Barrio, Count(Barrio) AS CONCA FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)' Group By Barrio Order By 2 DESC limit 5")
+View(test2)
 
-barplot(k, xlab = 'Movil Agresor', ylab = 'Frequency', main='Transporte principal', col = '#ce23a5',  horiz = F)
-
-bar <- barplot(k, xlab = 'Movil Agresor', ylab = 'Frequency', main='Transporte principal', col = '#ce23a5',  horiz = F)
-
-text(bar , paste("n: ",  test$CONCA, sep="") ,cex=1) 
-
-barplot(g, xlab = 'Movil Agresor', ylab = 'Frequency', main='Transporte principal', col = '#ce23a5',  horiz = F)
-
+ggplot(test2,aes(x=Barrio, y=CONCA, fill=Barrio))+geom_col(position='dodge')
 
