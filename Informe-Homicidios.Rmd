@@ -1,3 +1,7 @@
+---
+---
+---
+
 # Homicidios en la ciudad de Cali
 
 ## Introducción
@@ -6,7 +10,11 @@ El siguiente informe tiene como objetivo presentar el índice de homicidios de l
 
 Esta problematica se ha presentado desde años atras, según el informe de UNDOC (Oficina de Naciones Unidas contra la Droga y el Delito), la ciudad de Cali registra entre las ciudades con mayor tasa de hasta 80 homicidios. Comparado con otras ciudadades de Colombia en el año 2017, Medellín registró 573 homicidios, Bogotá registró 1130, Barranquilla 346, Bucaramanga 91 y finalmente Cali registró 1234 homicidios siendo así la ciudad con la mayor cantidad de victimas en el país.
 
-```{r echo=TRUE}
+```{r echo=TRUE, warning=FALSE}
+
+library(sqldf)
+library(ggplot2)
+
 cities <- sqldf("WITH A AS(SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'
               UNION ALL
               SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'ANTIOQUIA' AND Municipio = 'MEDELLÍN (CT)'
@@ -30,6 +38,31 @@ ggplot(cities,  aes(x= reorder(Municipio, counter),  y=counter, fill=Municipio))
   )
 
 ```
+
+| Variable cualitativa  | Cualitativa | Cuantitativa |
+|-----------------------|-------------|--------------|
+| Fecha                 |             | Continua     |
+| Departamento          | Nominal     |              |
+| Municipio             | Nominal     |              |
+| Día                   |             | Continua     |
+| Hora                  | Discreta    |              |
+| Barrio                | Nominal     |              |
+| Zona                  | Nominal     |              |
+| Clase de sitio        | Nominal     |              |
+| Arma empleada         | Nominal     |              |
+| Móvil Agresor         | Nominal     |              |
+| Móvil Victima         | Nominal     |              |
+| Edad                  |             | Discreta     |
+| Sexo                  | Nominal     |              |
+| Estado civil          | Nominal     |              |
+| País de nacimiento    | Nominal     |              |
+| Clase de empleado     | Nominal     |              |
+| Profesión             | Nominal     |              |
+| Escolaridad           | Ordinal     |              |
+| Código DANE           | Ordinal     |              |
+| Cantidad Departamento |             | Continua     |
+
+Departamento Municipio Día Barrio Zona Clase de sitio Arma empleada Sexo Estado civil País de nacimiento Clase de empleado Profesión Escolaridad
 
 ### Móvil Victima con mayores homicidios haciendo distincion de genero
 

@@ -6,6 +6,11 @@ valle_data <- sqldf("SELECT * FROM Homicidios WHERE Departamento = 'VALLE' AND M
 View(valle_data)
 
 
+valle_data <- sqldf("SELECT  [País de nacimiento], COUNT(*) FROM Homicidios GROUP BY [País de nacimiento]")
+View(valle_data)
+
+
+
 # Movil Victima con mayores homicidios haciendo distincion de genero
 
 test <- sqldf("SELECT CASE WHEN [Móvil Victima] !='-' THEN [Móvil Victima] ELSE 'DESCONOCIDO' END AS [Móvil Victima] , sexo,  count(sexo) AS CONCA FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)' group by sexo, [Móvil Victima]")
@@ -132,3 +137,20 @@ ggplot(test2,aes(x=Barrio, y=Cantidad, fill=Barrio))+geom_col(position='dodge')+
     plot.title = element_text(size = 10, face = "bold", color = "black")
   )
 
+
+install.packages("ggplot2")
+library(ggplot2)
+
+library(readxl)
+Homicidios <- read_excel("~/Materias U-LAPTOP-GGKEEKJ2/Proyecto Grado 2/Bases_Datos/Homicidios.xlsx")
+View(Homicidios)
+
+##construccion de graficos##
+
+##Cantidad homucidos por departamento##
+
+ggplot(Homicidios,aes(x=Departamento)) +geom_bar(fill="Orange3") + coord_flip()
+
+##Cantidad homucidos por edad##
+
+ggplot(Homicidios,aes(x=Edad)) +geom_bar(fill="Red")
