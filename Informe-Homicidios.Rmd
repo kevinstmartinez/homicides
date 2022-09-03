@@ -1,17 +1,97 @@
 ---
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
 ---
----
+### Autores:
+
+Yulian Esteban Vargas Pardo, David Alejandro Mosquera Moreno, Kevin Stiven Moreno Martinez, Lina Dayana Rojas Angarita, Camila Alejandra Velasco Ruiz, yeferson David Aparicio Gómez
+
+### Año:
+
+2022
+
+### Curso:
+
+FUNDAMENTOS DE ESTADÍSTICA PARA ANALÍTICA DE DATOS
 
 # Homicidios en la ciudad de Cali
 
-## Introducción
+## 1. Introducción
 
-El siguiente informe tiene como objetivo presentar el índice de homicidios de la ciudad de Cali en el año 2017, para ello se utilizo una base de datos de Homicidios ocurridos en Colombia en dicho año.
+En la base de datos de "Homicidios" se observa que durante el año 2017 hubo 11965 homicidios, al realizar un análisis detallado el 98.16% personas afectadas tenían nacionalidad colombiana, el 1.01% no fue reportada esta información y el 0.66% era de nacionalidad venezolana. Por lo anterior observado, se pretende analizar en la base de datos el país Colombia, donde se encuentra que, de los 32 departamentos observados, el departamento del Valle es el que tiene más homicidios registrados con el 20% de los casos seguido por los departamentos de Antioquia 16% y Cundinamarca el 13%, por tal razón para analizar los diferentes factores del homicidio en los ciudadanos colombianos nos enfocaremos en el municipio de Cali.
 
-Esta problematica se ha presentado desde años atras, según el informe de UNDOC (Oficina de Naciones Unidas contra la Droga y el Delito), la ciudad de Cali registra entre las ciudades con mayor tasa de hasta 80 homicidios. Comparado con otras ciudadades de Colombia en el año 2017, Medellín registró 573 homicidios, Bogotá registró 1130, Barranquilla 346, Bucaramanga 91 y finalmente Cali registró 1234 homicidios siendo así la ciudad con la mayor cantidad de victimas en el país.
+
+```{r}
+
+library(readxl)
+Paisdenacimiento <- read_excel("Homicidios (1).xlsx", 
+                         sheet = "Pais de nacimiento", col_types = c("text"))
+##View(Paisdenacimiento)
+
+#nrow(Paisdenacimiento) # numero de filas de Refresco
+#ncol(Paisdenacimiento)
+# tabla de frecuencias. El resto se hace de la misma forma que
+# en el caso 1
+frec.abs1 <- table(Paisdenacimiento);#frec.abs
+frec.abs1 <- sort(frec.abs1,decreasing = T)[1:4]
+n <- dim(Paisdenacimiento)[1];#n
+frec.relat1 <- frec.abs1/n;#frec.relat1
+prctg <- frec.relat1*100
+##windows(50,30) # abriendo ventana grafica externa
+
+
+#?barplot
+#barplot(frec.abs1,xlab="Pais de nacimiento",
+ #       ylab="Frecuencia absoluta",
+  #      main="Homicidios",col=c(8,2,3,4),ylim=c(0,12000))
+
+n1 <- rownames(frec.abs1)
+#n1
+
+pie(frec.abs1,labels=paste(round((frec.abs1/n)*100,2),"%"), main="Victimas de homicidio por país de nacimiento",
+    col=c(6,4,9,12))
+legend("topleft",legend =n1,ncol=2,col=c(6,4,9,12),pch=18)
+```
+
+Por ello, el siguiente informe tiene como objetivo presentar el índice de homicidios de la ciudad de Cali en el año 2017, para ello se utilizó una base de datos de Homicidios ocurridos en Colombia en dicho año.
+
+Esta problemática se ha presentado desde años atrás, según el informe de UNDOC (Oficina de Naciones Unidas contra la Droga y el Delito), la ciudad de Cali registra entre las ciudades con mayor tasa de hasta 80 homicidios. Comparado con otras ciudades de Colombia en el año 2017, Medellín registró 573 homicidios, Bogotá registró 1130, Barranquilla 346, Bucaramanga 91 y finalmente Cali registró 1234 homicidios siendo así la ciudad con la mayor cantidad de víctimas en el país. ()
+
+## 2. Identificación de los tipos de variables para la base de datos Homicidios
+
+| Variable cualitativa  | Cualitativa | Cuantitativa |
+|-----------------------|-------------|--------------|
+| Fecha                 |             | Continua     |
+| Departamento          | Nominal     |              |
+| Municipio             | Nominal     |              |
+| Día                   |             | Continua     |
+| Hora                  | Discreta    |              |
+| Barrio                | Nominal     |              |
+| Zona                  | Nominal     |              |
+| Clase de sitio        | Nominal     |              |
+| Arma empleada         | Nominal     |              |
+| Móvil Agresor         | Nominal     |              |
+| Móvil Victima         | Nominal     |              |
+| Edad                  |             | Discreta     |
+| Sexo                  | Nominal     |              |
+| Estado civil          | Nominal     |              |
+| País de nacimiento    | Nominal     |              |
+| Clase de empleado     | Nominal     |              |
+| Profesión             | Nominal     |              |
+| Escolaridad           | Ordinal     |              |
+| Código DANE           | Ordinal     |              |
+| Cantidad Departamento |             | Continua     |
+
+## 3. Análisis Gráfico
+
+### 3.1 Comparativa de homicidios de las principales ciudades del país
 
 ```{r echo=TRUE, warning=FALSE}
-
+library(readr)
+Homicidios <- read_csv("Homicidios.csv")
+#View(Homicidios)
 library(sqldf)
 library(ggplot2)
 
@@ -39,34 +119,44 @@ ggplot(cities,  aes(x= reorder(Municipio, counter),  y=counter, fill=Municipio))
 
 ```
 
-| Variable cualitativa  | Cualitativa | Cuantitativa |
-|-----------------------|-------------|--------------|
-| Fecha                 |             | Continua     |
-| Departamento          | Nominal     |              |
-| Municipio             | Nominal     |              |
-| Día                   |             | Continua     |
-| Hora                  | Discreta    |              |
-| Barrio                | Nominal     |              |
-| Zona                  | Nominal     |              |
-| Clase de sitio        | Nominal     |              |
-| Arma empleada         | Nominal     |              |
-| Móvil Agresor         | Nominal     |              |
-| Móvil Victima         | Nominal     |              |
-| Edad                  |             | Discreta     |
-| Sexo                  | Nominal     |              |
-| Estado civil          | Nominal     |              |
-| País de nacimiento    | Nominal     |              |
-| Clase de empleado     | Nominal     |              |
-| Profesión             | Nominal     |              |
-| Escolaridad           | Ordinal     |              |
-| Código DANE           | Ordinal     |              |
-| Cantidad Departamento |             | Continua     |
+### 3.2 Comparativa de municipios del departamento del Valle
 
-Departamento Municipio Día Barrio Zona Clase de sitio Arma empleada Sexo Estado civil País de nacimiento Clase de empleado Profesión Escolaridad
+```{r echo=TRUE, warning=FALSE}
 
-### Móvil Victima con mayores homicidios haciendo distincion de genero
+
+library(readxl)
+Municipios <- read_excel("Homicidios (1).xlsx", 
+                         sheet = "municipio", col_types = c("text"))
+##View(Municipios)
+
+n <- dim(Municipios)[1];#n
+frec.abs <- sort(table(Municipios),decreasing = T)[1:10];#frec.abs
+frec.relat = frec.abs/n
+prctg <- frec.relat*100;#prctg
+n1 <- rownames(frec.abs);#n1
+##windows(50,30) # abriendo ventana grafica externa
+
+
+
+
+#?barplot
+#barplot(frec.abs,xlab="Municipios",
+ #       ylab="Frecuencia absoluta",
+  #      main="Homicidios",col=c(8,2,3,4,5,6,7,15,9,10,11,12,13,14),ylim=c(0,1300))
+
+
+pie(frec.abs,labels=paste(round((frec.abs/n*100),2),"%"), main="Municipios",
+    col=c(8,2,3,4,5,6,18,15,9,10 ))
+
+legend("bottomleft",legend =n1,ncol=1,col=c(8,2,3,4,5,6,18,15,9,10 ),pch=18)
+```
+
+### 3.3 Móvil víctimas de homicidios por sexo
 
 ```{r}
+library(readr)
+Homicidios <- read_csv("Homicidios.csv")
+#View(Homicidios)
 library(sqldf)
 library(ggplot2)
 
@@ -94,17 +184,15 @@ ggplot(Datos, aes(x = `Móvil Victima`, y=Cantidad, fill =Sexo))+
   )
 ```
 
-### Top 5 Barrios con mayor cantidad homicidios en la ciudad de Cali
+### 3.4 Los cinco Barrios con mayor cantidad de homicidios en la ciudad de Cali
 
 ```{r}
-library(knitr)
-kable(test3, caption = "Tabla de datos")
-```
-
-```{r}
+library(readr)
+Homicidios <- read_csv("Homicidios.csv")
+#View(Homicidios)
 library(sqldf)
 library(ggplot2)
-
+library(knitr)
 #Top 5 Barrios con mayor cantidad homicidios en la ciudad de Cali
 
 test3 <- sqldf("SELECT Barrio, Count(Barrio) AS victimas,
@@ -121,6 +209,9 @@ Group By Barrio
 Order By 2 DESC
 limit 5")
 
+
+kable(test3, caption = "Tabla de datos")
+
 ggplot(test3,aes(x="",y=porcentaje, fill=Barrio))+
   geom_bar(stat = "identity",
            color="white")+
@@ -132,6 +223,6 @@ ggplot(test3,aes(x="",y=porcentaje, fill=Barrio))+
 
 ```
 
-## Referencias
+## 4. Referencias
 
 \- Tejeda Puentes, D. S. (2017). Producción del poder mafioso en Santiago de Cali y su relación con la salud urbana: territorios y redes. repositorio.unal.edu.co. <https://repositorio.unal.edu.co/bitstream/handle/unal/59802/31841192.2017.pdf?sequence=1&isAllowed=y>
