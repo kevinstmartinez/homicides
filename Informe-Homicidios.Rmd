@@ -1,4 +1,37 @@
-## Trabajo Homicidios
+# Homicidios en la ciudad de Cali
+
+## Introducción
+
+El siguiente informe tiene como objetivo presentar el índice de homicidios de la ciudad de Cali en el año 2017, para ello se utilizo una base de datos de Homicidios ocurridos en Colombia en dicho año.
+
+Esta problematica se ha presentado desde años atras, según el informe de UNDOC (Oficina de Naciones Unidas contra la Droga y el Delito), la ciudad de Cali registra entre las ciudades con mayor tasa de hasta 80 homicidios. Comparado con otras ciudadades de Colombia en el año 2017, Medellín registró 573 homicidios, Bogotá registró 1130, Barranquilla 346, Bucaramanga 91 y finalmente Cali registró 1234 homicidios siendo así la ciudad con la mayor cantidad de victimas en el país.
+
+```{r echo=TRUE}
+cities <- sqldf("WITH A AS(SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'
+              UNION ALL
+              SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'ANTIOQUIA' AND Municipio = 'MEDELLÍN (CT)'
+              UNION ALL
+              SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'CUNDINAMARCA' AND Municipio = 'BOGOTÁ D.C. (CT)'
+              UNION ALL
+              SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'ATLÁNTICO' AND Municipio = 'BARRANQUILLA (CT)'
+              UNION ALL
+              SELECT COUNT(*) as counter, Municipio FROM Homicidios WHERE Departamento = 'SANTANDER' AND Municipio = 'BUCARAMANGA (CT)')
+              SELECT * FROM A ORDER BY 1 DESC 
+              ")
+
+ggplot(cities,  aes(x= reorder(Municipio, counter),  y=counter, fill=Municipio))+geom_col()+  coord_flip() +
+  
+  labs( title = "Comparativa de homicidios de las principales ciudades del país\n", x= "Ciudad" , y ="Cantidad de víctimas" )+
+  geom_text(aes(y = counter, label = counter), 
+            position = position_dodge(width = 0.9), size=4, vjust=-1, hjust=0.5 ,col="black")+
+  theme(
+    axis.text.y = element_text(size = 8), axis.title.y = element_text(size = 8),
+    plot.title = element_text(size = 14, face = "bold", color = "Black", hjust= .5)
+  )
+
+```
+
+### Móvil Victima con mayores homicidios haciendo distincion de genero
 
 ```{r}
 library(sqldf)
@@ -6,7 +39,6 @@ library(ggplot2)
 
 
 # Movil Victima con mayores homicidios haciendo distincion de genero
-
 Datos <- sqldf("SELECT CASE WHEN [Móvil Victima] !='-' THEN [Móvil Victima] ELSE 'DESCONOCIDO' END AS [Móvil Victima] , sexo,  count(sexo) AS Cantidad FROM Homicidios WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)' group by sexo, [Móvil Victima]")
 #Visualizar Consulta#
 #View(Datos)
@@ -27,9 +59,13 @@ ggplot(Datos, aes(x = `Móvil Victima`, y=Cantidad, fill =Sexo))+
     axis.text.y = element_text(size = 8), axis.title.y = element_text(size = 8),
     plot.title = element_text(size = 10, face = "bold", color = "black",hjust = 0.5)
   )
+```
 
+### Top 5 Barrios con mayor cantidad homicidios en la ciudad de Cali
 
-#--------------------------------------
+```{r}
+library(knitr)
+kable(test3, caption = "Tabla de datos")
 ```
 
 ```{r}
@@ -38,44 +74,31 @@ library(ggplot2)
 
 #Top 5 Barrios con mayor cantidad homicidios en la ciudad de Cali
 
-test2 <- sqldf(
-
-"SELECT A.*, SUM(CONCA) AS total FROM
-(SELECT Barrio, Count(Barrio) AS CONCA
+test3 <- sqldf("SELECT Barrio, Count(Barrio) AS victimas,
+  ROUND(Count(Barrio)   / ( SELECT (SUM(victimas) *1.0)
+  FROM
+    (SELECT Barrio, Count(Barrio) AS victimas
+    FROM Homicidios
+    WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'
+    Group By Barrio
+    Order By 2 DESC limit 5)A)*100 ,2)   AS porcentaje
 FROM Homicidios
 WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'
 Group By Barrio
-Order By 2 DESC limit 5)A "
+Order By 2 DESC
+limit 5")
 
-
-)
-View(test2)
-
-test3 <- sqldf("SELECT Barrio, Count(Barrio) AS CONCA, 
-Count(Barrio)   /( SELECT (SUM(CONCA) *1.0) FROM
-(SELECT Barrio, Count(Barrio) AS CONCA
-FROM Homicidios
-WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'
-Group By Barrio
-Order By 2 DESC limit 5)A)*100   AS Total 
-FROM Homicidios
-WHERE Departamento = 'VALLE' AND Municipio = 'CALI (CT)'
-Group By Barrio
-Order By 2 DESC limit 5")
-View(test3)
-
-
-ggplot(test2,aes(x=Barrio, y=Cantidad, fill=Barrio))+geom_col(position='dodge')+
-labs( title = "Top 5 Barrios con mayor cantidad de homicidios en la ciudad de Cali\n", x= "Barrio" , y ="Cantidad de víctimas" )+
-geom_text(aes(y = Cantidad,label = Cantidad), 
-            position = position_dodge(width = 0.9), size=2.5, vjust=-1, hjust=0.5 ,col="black")+
-#Rango de datos
-scale_y_continuous(limit = c(0,40))+
-theme(
-  axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 8), axis.title.x = element_text(size = 8),
-  axis.text.y = element_text(size = 8), axis.title.y = element_text(size = 8),
-  plot.title = element_text(size = 10, face = "bold", color = "black")
-)
-
+ggplot(test3,aes(x="",y=porcentaje, fill=Barrio))+
+  geom_bar(stat = "identity",
+           color="white")+
+  geom_text(aes(label=paste(porcentaje, "%")),
+            position=position_stack(vjust=0.5),color="white",size=6)+
+  coord_polar(theta = "y")
 #--------------------------------------
+
+
 ```
+
+## Referencias
+
+\- Tejeda Puentes, D. S. (2017). Producción del poder mafioso en Santiago de Cali y su relación con la salud urbana: territorios y redes. repositorio.unal.edu.co. <https://repositorio.unal.edu.co/bitstream/handle/unal/59802/31841192.2017.pdf?sequence=1&isAllowed=y>
